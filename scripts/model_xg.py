@@ -6,7 +6,6 @@ from sklearn.metrics import classification_report, roc_auc_score, precision_reca
 import xgboost as xgb
 from sklearn.grid_search import GridSearchCV
 
-#%%
 df_train = pd.read_csv('../data/raw/train.tsv',sep='\t')
 df_test = pd.read_csv('../data/raw/test.tsv',sep='\t')
 df_holiday = pd.read_csv('../data/holiday.csv')
@@ -26,7 +25,6 @@ params = {"learning_rate":[0.1,0.3,0.5],
          }
 
 model = xgb.XGBRegressor()
-#cv = GridSearchCV(model, params, cv = 10, scoring= 'roc_auc', n_jobs =-1)
 cv = GridSearchCV(model, params, cv = 10, n_jobs =-1)
 cv.fit(X_train, y_train)
 
