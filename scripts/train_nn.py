@@ -93,15 +93,33 @@ num = sys.argv[1]
 input_dir = '../data/processed/'
 X = pd.read_csv(input_dir + 'x_train_{0}.csv'.format(num), index_col=0).as_matrix()
 y = pd.read_csv(input_dir + 'y_train_{0}.csv'.format(num), index_col=0).as_matrix()
+df_test = pd.read_csv('../data/raw/test.tsv', sep='\t')
 X_train, X_test, y_train, y_test = train_test_split(X,y, random_state=0)
 
+# traib for cv
 nnetc = nnet(X_train)
-model = nnetc.fit(X_train, y_train.ravel(), hidden_size=[25, 10, 3], iter_size=200)
+model_cv = nnetc.fit(X_train, y_train.ravel(), hidden_size=[25, 10, 3], iter_size=10000)
 
-y_test_pred = nnetc.predict(model, X_test)
-y_train_pred = nnetc.predict(model, X_train)
+y_test_pred = nnetc.predict(model_cv, X_test)
+y_train_pred = nnetc.predict(model_cv, X_train)
 
 # 評価
 from sklearn.metrics import mean_absolute_error
 print('MAE train：{0}'.format(mean_absolute_error(y_train, y_train_pred)))
 print('MAE test：{0}'.format(mean_absolute_error(y_test, y_test_pred)))
+
+# train
+model = nnetc.fit(X, y.ravel(), hidden_size=[25, 10, 3], iter_size=10000)
+
+# predict
+y_pred = nnetc.predict(model, X)
+
+# create submit file
+df_submit = pd.DataFrame({
+    '':df_test['index'],
+    '':y_pred})
+
+# pandas.[DataFrame or Series].where(cond,other=xxx) condがFalseの時にotherを代入
+# マイナスと予測した結果を100に修正
+df_submit =df_submit.where(df_submit.iloc[:, [0]] > 0, 100)
+df_submit.to_csv('../submit/submit_nn_{0}.csv'.format(num))

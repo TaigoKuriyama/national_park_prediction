@@ -7,3 +7,4 @@ Sphinx
 flake8
 xgboost
 tensorflow
+lightgbm
